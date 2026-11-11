@@ -11,6 +11,7 @@ on:
     paths:
       - index.html
       - scripts/update_prices.py
+      - scripts/send_price_email.py
       - requirements.txt
       - .github/workflows/actualizar-precios.yml
 
@@ -39,7 +40,7 @@ jobs:
       - name: Instalar lector del Excel oficial
         run: python -m pip install -r requirements.txt
       - name: Leer los precios semanales de Jaén
-        run: python scripts/update_prices.py dist/weekly-data.js
+        run: python scripts/update_prices.py dist/weekly-data.js price-update.json
       - name: Preparar la web
         run: cp index.html dist/index.html
       - name: Cargar la web para publicar
@@ -49,3 +50,12 @@ jobs:
       - name: Publicar en GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+      - name: Enviar correo semanal con las variaciones
+        if: github.event_name == 'schedule'
+        env:
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          SMTP_HOST: smtp.gmail.com
+          SMTP_PORT: "587"
+        run: python scripts/send_price_email.py price-update.json
