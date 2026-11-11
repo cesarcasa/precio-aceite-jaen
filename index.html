@@ -22,23 +22,23 @@
   <main class="shell">
     <header class="topbar">
       <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5C9.6 6 5.6 10.4 5.6 14.4a6.4 6.4 0 0 0 12.8 0C18.4 10.4 14.4 6 12 2.5Z" stroke="currentColor" stroke-width="1.5"/><path d="M9 15.3c.2 1.5 1.1 2.4 2.7 2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span>Aceite al Día</div>
-      <div class="top-right"><span><i class="live-dot"></i>Prototipo · cifras de referencia</span><span>ES · €/kg</span></div>
+      <div class="top-right"><span><i class="live-dot"></i>Junta de Andalucía · precios semanales</span><span>ES · €/kg</span></div>
     </header>
     <section class="hero">
-      <div><div class="eyebrow">Jaén · mercado de origen</div><h1>¿A cuánto cotiza<br>el aceite de Jaén?</h1><p>Precios de aceites producidos en Jaén, reunidos desde fuentes oficiales y del sector. Cada cifra conserva su periodo y alcance.</p></div>
-      <div class="period"><small>Último periodo disponible</small><strong>Semana 44 · 26 oct — 1 nov 2026</strong></div>
+      <div><div class="eyebrow">Jaén · mercado de origen</div><h1>¿A cuánto cotiza<br>el aceite de Jaén?</h1><p>Precios semanales oficiales de AOVE, Virgen y Lampante publicados para Jaén.</p></div>
+      <div class="period"><small>Último periodo disponible</small><strong id="latestPeriod">Cargando periodo…</strong></div>
     </section>
     <section aria-label="Precios semanales">
-      <div class="controls"><span class="control-label">Las tres calidades · precios en origen</span><span class="spacer"></span><span class="updated">Actualizado el 10 nov 2026</span><button class="export-button" id="exportWeekly" type="button" onclick="saveWeeklyPriceSheet()">Guardar gráfica y descargar hoja</button></div><div class="export-status" id="exportStatus" aria-live="polite"></div>
+      <div class="controls"><span class="control-label">Las tres calidades · precios en origen</span><span class="spacer"></span><span class="updated" id="updatedDate">Datos de la Junta de Andalucía</span><button class="export-button" id="exportWeekly" type="button" onclick="saveWeeklyPriceSheet()">Guardar gráfica y descargar hoja</button></div><div class="export-status" id="exportStatus" aria-live="polite"></div>
       <div class="price-table-wrap"><table class="price-table"><thead><tr><th>Fuente</th><th>Virgen extra</th><th>Virgen</th><th>Lampante</th></tr></thead><tbody id="priceRows"></tbody></table><div class="table-foot"><span>Precios en €/kg</span><span>El periodo de referencia se indica por fuente</span></div></div>
     </section>
     <section class="lower">
       <article class="panel">
-        <div class="panel-title"><div><h2>Evolución de los últimos 12 meses · Junta de Andalucía</h2><div class="panel-sub">Jaén · precio medio semanal en origen por calidad (€/kg)</div></div><div class="avg">Semana 44<b>3,11 AOVE · 2,93 Virgen</b></div></div>
+        <div class="panel-title"><div><h2>Evolución de los últimos 12 meses · Junta de Andalucía</h2><div class="panel-sub">Jaén · precio medio semanal en origen por calidad (€/kg)</div></div><div class="avg"><span id="latestChartWeek">Última semana</span><b id="latestChartPrices">AOVE · Virgen</b></div></div>
         <div class="chart" id="aoveChart"><svg viewBox="0 0 1420 180" role="img" aria-label="Evolución semanal de los precios medios de AOVE y virgen publicados por la Junta de Andalucía para Jaén"></svg></div>
         <div class="legend"><span><i></i>AOVE · precio medio semanal</span><span class="v"><i></i>Virgen · precio medio semanal</span><span>Junta de Andalucía · Jaén</span></div><div class="chart-note" id="chartNote">Cada punto muestra el precio medio semanal publicado por la Junta. Los huecos indican semanas sin un dato disponible.</div>
       </article>
-      <aside class="panel notes"><h2>Fuentes consultadas</h2><div id="sourceList"></div><p class="footnote">Los precios son referencias en origen, normalmente a granel y antes de IVA. Cada fuente usa su propia metodología y periodo: compara también la fecha y el alcance antes de interpretar diferencias.</p></aside>
+      <aside class="panel notes"><h2>Fuente de datos</h2><div id="sourceList"></div><p class="footnote">Precios en origen expresados en €/kg. Información obtenida del Portal de la Junta de Andalucía; cada punto conserva su semana de referencia.</p></aside>
     </section>
     <section class="panel monthly-panel">
       <div class="panel-title"><div><h2>Variación mensual del precio medio</h2><div class="panel-sub">Cambio de la media mensual respecto al mes anterior (€/kg) · Jaén</div></div></div>
@@ -52,15 +52,13 @@
       <div class="legend"><span><i></i>AOVE · cambio mensual acumulado</span><span class="v"><i></i>Virgen · cambio mensual acumulado</span></div>
       <div class="chart-note" id="periodChangeNote">La variación se calcula respecto a la media mensual de cada calidad en el primer mes del periodo.</div>
     </section>
-    <footer class="footer"><span>El CSV se abre en Excel; el histórico se guarda en este navegador. Los precios aún deben actualizarse manualmente cada semana.</span><span>Consulta la fuente enlazada antes de tomar decisiones.</span></footer>
+    <footer class="footer"><span>El CSV se abre en Excel; el histórico se guarda en este navegador. La web recoge los nuevos datos oficiales cada jueves.</span><span>Consulta la fuente enlazada antes de tomar decisiones.</span></footer>
   </main>
+  <script src="./weekly-data.js"></script>
   <script>
     // Valores de referencia de la vista previa; cada ficha enlaza al boletín o entidad que publica el dato.
     const data = [
-      {name:'Junta de Andalucía · Jaén',scope:'Precio semanal en origen',cat:{AOVE:3.11,Virgen:2.93,Lampante:2.80},period:'Semana 44 · 26 oct — 1 nov',updated:'3 nov 2026',badge:'OFICIAL',url:'https://www.juntadeandalucia.es/organismos/agriculturapescaaguaydesarrollorural/servicios/estadistica-cartografia/estadisticas-agricolas/paginas/precios-agricolas-semanales.html',change:'Datos provinciales de Jaén',dir:''},
-      {name:'Comisión Europea · plaza Jaén',scope:'Mercado representativo · origen',cat:{AOVE:3.11,Virgen:2.93,Lampante:2.80},period:'Semana 44 · 26 oct — 1 nov',updated:'6 nov 2026',badge:'OFICIAL',url:'https://asolite.es/precios/',change:'Datos de la plaza de Jaén',dir:''},
-      {name:'Infaoliva · Jaén (Picual)',scope:'Cotización por calidad y entrega',cat:{AOVE:3.113,Virgen:2.825,Lampante:2.788},period:'Publicación 9 nov 2026',updated:'9 nov 2026',badge:'MERCADO',url:'https://centroliva.com/precios/',change:'AOVE: noviembre 25/26',dir:''},
-      {name:'POOLred · Picual de Jaén (ASAJA)',scope:'Operaciones comunicadas por ASAJA-Jaén',cat:{AOVE:3.096,Virgen:null,Lampante:2.907},period:'13 — 19 oct 2026',updated:'19 oct 2026',badge:'MERCADO',url:'https://www.asajajaen.com/precio-del-aceite',change:'Virgen: sin cotización publicada',dir:''}
+      {name:'Junta de Andalucía · Jaén',scope:'Precio semanal en origen',cat:{AOVE:3.11,Virgen:2.93,Lampante:2.80},period:'Semana 44 · 26 oct — 1 nov',updated:'3 nov 2026',badge:'OFICIAL',url:'https://www.juntadeandalucia.es/organismos/agriculturapescaaguaydesarrollorural/servicios/estadistica-cartografia/estadisticas-agricolas/paginas/precios-agricolas-semanales.html',change:'Datos provinciales de Jaén',dir:''}
     ];
     const weeklyAove2026=[4.36,4.40,4.29,4.10,4.05,4.18,4.28,4.38,4.38,4.30,4.40,4.35,4.25,4.35,4.25,4.15,4.25,4.20,4.18,4.18,3.95,null,3.84,3.84,3.79,3.79,3.75,3.75,3.48,3.51,3.51,3.49,3.43,3.43,3.30,3.40,3.38,3.42,3.42,3.42,3.31,3.29,3.24,3.11];
     const weeklyVirgen2026=[3.90,3.90,3.90,3.80,3.75,3.81,3.86,3.92,3.80,3.74,3.85,3.75,3.65,3.75,3.65,3.65,3.70,3.60,3.58,3.58,3.33,null,3.21,3.25,3.28,3.18,3.14,3.11,3.06,3.08,3.08,3.07,3.05,null,3.10,3.20,3.18,3.18,3.18,3.18,3.06,3.03,3.01,2.93];
@@ -72,9 +70,26 @@
     const mondayOf=date=>{const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));d.setUTCDate(d.getUTCDate()-((d.getUTCDay()+6)%7));return d;};
     const mondayOfIsoWeek=(year,week)=>{const d=mondayOf(new Date(Date.UTC(year,0,4)));d.setUTCDate(d.getUTCDate()+(week-1)*7);return d;};
     const weekly2026=Object.fromEntries(weeklyAove2026.map((aove,i)=>[i+1,{aove,virgen:weeklyVirgen2026[i]}]));
-    const weeklyByYear={2025:weekly2025Tail,2026:weekly2026};
-    const availableWeeks=Object.entries(weeklyByYear).flatMap(([year,weeks])=>Object.entries(weeks).filter(([,prices])=>Number.isFinite(prices.aove)||Number.isFinite(prices.virgen)).map(([week,prices])=>({year:Number(year),week:Number(week),prices}))).sort((a,b)=>a.year-b.year||a.week-b.week);
+    const fallbackWeeklyByYear={2025:weekly2025Tail,2026:weekly2026};
+    const weeklyByYear=window.aceiteWeeklyData||fallbackWeeklyByYear;
+    const availableWeeks=Object.entries(weeklyByYear).flatMap(([year,weeks])=>Object.entries(weeks).filter(([,prices])=>Number.isFinite(prices.aove)||Number.isFinite(prices.virgen)||Number.isFinite(prices.lampante)).map(([week,prices])=>({year:Number(year),week:Number(week),prices}))).sort((a,b)=>a.year-b.year||a.week-b.week);
+    const euro = n => n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
     const latestDataWeek=availableWeeks[availableWeeks.length-1];
+    const latestChartDataWeek=[...availableWeeks].reverse().find(row=>Number.isFinite(row.prices.aove)||Number.isFinite(row.prices.virgen))||latestDataWeek;
+    const periodDateLabel=date=>new Intl.DateTimeFormat('es-ES',{day:'numeric',month:'short',timeZone:'UTC'}).format(date).replace(/\./g,'');
+    const periodLabel=(year,week)=>{const monday=mondayOfIsoWeek(year,week),sunday=new Date(monday);sunday.setUTCDate(sunday.getUTCDate()+6);return `Semana ${week} · ${periodDateLabel(monday)} — ${periodDateLabel(sunday)} ${year}`;};
+    const latestPublication=window.aceiteSourceInfo||{latestYear:latestDataWeek.year,latestWeek:latestDataWeek.week,latestPrices:latestDataWeek.prices};
+    document.getElementById('latestPeriod').textContent=periodLabel(latestPublication.latestYear,latestPublication.latestWeek);
+    document.getElementById('latestChartWeek').textContent=`Semana ${latestChartDataWeek.week}`;
+    const chartPrice=value=>Number.isFinite(value)?euro(value):'Sin dato';
+    document.getElementById('latestChartPrices').textContent=`${chartPrice(latestChartDataWeek.prices.aove)} AOVE · ${chartPrice(latestChartDataWeek.prices.virgen)} Virgen`;
+    if(window.aceiteSourceInfo){
+      data[0].cat={AOVE:window.aceiteSourceInfo.latestPrices.aove,Virgen:window.aceiteSourceInfo.latestPrices.virgen,Lampante:window.aceiteSourceInfo.latestPrices.lampante};
+      data[0].period=periodLabel(window.aceiteSourceInfo.latestYear,window.aceiteSourceInfo.latestWeek);
+      data[0].updated=`Consultado el ${window.aceiteSourceInfo.checkedOn}`;
+      document.getElementById('updatedDate').textContent=data[0].updated;
+    }
+    else{document.getElementById('updatedDate').textContent='Referencia local · pendiente de actualizar';}
     const startMonday=mondayOfIsoWeek(latestDataWeek.year-1,latestDataWeek.week);
     const endMonday=mondayOfIsoWeek(latestDataWeek.year,latestDataWeek.week);
     const juntaWeekly=[];
@@ -84,7 +99,6 @@
       juntaWeekly.push({year,week:`S${String(week).padStart(2,'0')}`,date:`Semana ${week} · ${year}`,label:`S${String(week).padStart(2,'0')}`,aove:prices?.aove??null,virgen:prices?.virgen??null});
     }
     let sessionHistory=[];
-    const euro = n => n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
     function render(){
       const cell=value=>value===null?'<span class="table-unit">Sin cotización</span>':`<span class="table-price">${euro(value)}</span><span class="table-unit"> €/kg</span>`;
       document.getElementById('priceRows').innerHTML=data.map(d=>`<tr><td><div class="source">${d.name} <span class="badge">${d.badge}</span></div><span class="table-period">${d.period} · ${d.scope} · <a href="${d.url}" target="_blank" rel="noopener noreferrer">Ver fuente ↗</a></span></td><td>${cell(d.cat.AOVE)}</td><td>${cell(d.cat.Virgen)}</td><td>${cell(d.cat.Lampante)}</td></tr>`).join('');
