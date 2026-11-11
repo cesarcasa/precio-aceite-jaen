@@ -198,6 +198,28 @@ def main() -> None:
     if any(latest[quality] is None for quality in ("aove", "virgen", "lampante")):
         raise RuntimeError("Falta una de las tres calidades en la última semana; no se publican datos parciales.")
 
+    earlier_weeks = [week for week in published_weeks if week < latest_week]
+    if earlier_weeks:
+        previous_year = year
+        previous_week = max(earlier_weeks)
+        previous = current_year[str(previous_week)]
+    else:
+        previous_year = year - 1
+        prior_year = weekly_by_year.get(str(previous_year), {})
+        prior_published_weeks = [
+            int(week) for week, prices in prior_year.items()
+            if all(prices.get(quality) is not None for quality in ("aove", "virgen", "lampante"))
+        ]
+        if not prior_published_weeks:
+            raise RuntimeError("No hay una semana anterior completa para calcular las variaciones.")
+        previous_week = max(prior_published_weeks)
+        previous = prior_year[str(previous_week)]
+
+    changes = {
+        quality: round(latest[quality] - previous[quality], 4)
+        for quality in ("aove", "virgen", "lampante")
+    }
+
     checked = datetime.now(ZoneInfo("Europe/Madrid"))
     month = SPANISH_MONTHS[checked.month - 1]
     source_info = {
@@ -205,6 +227,10 @@ def main() -> None:
         "latestYear": year,
         "latestWeek": latest_week,
         "latestPrices": latest,
+        "previousYear": previous_year,
+        "previousWeek": previous_week,
+        "previousPrices": previous,
+        "changes": changes,
     }
     output = Path(sys.argv[1] if len(sys.argv) > 1 else "weekly-data.js")
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -216,6 +242,8 @@ def main() -> None:
         + ";\n",
         encoding="utf-8",
     )
+    report = Path(sys.argv[2] if len(sys.argv) > 2 else "price-update.json")
+    report.write_text(json.dumps(source_info, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Datos generados: semana {latest_week} de {year} ({output}).")
 
 
