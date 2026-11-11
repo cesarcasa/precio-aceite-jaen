@@ -51,7 +51,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
       - name: Enviar correo semanal con las variaciones
-        if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
