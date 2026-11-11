@@ -1,0 +1,51 @@
+name: Actualizar y publicar precios del aceite
+
+on:
+  schedule:
+    - cron: "17 9 * * 4"
+      timezone: Europe/Madrid
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - index.html
+      - scripts/update_prices.py
+      - requirements.txt
+      - .github/workflows/actualizar-precios.yml
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  update-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar lector del Excel oficial
+        run: python -m pip install -r requirements.txt
+      - name: Leer los precios semanales de Jaén
+        run: python scripts/update_prices.py dist/weekly-data.js
+      - name: Preparar la web
+        run: cp index.html dist/index.html
+      - name: Cargar la web para publicar
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
